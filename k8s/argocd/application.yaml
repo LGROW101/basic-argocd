@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: full-assessment-tax
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/LGROW101/kubectl-infra-argocd.git
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: full-assessment-tax
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: assessment-tax-components
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - name: backend
+        path: backend
+      - name: frontend
+        path: frontend
+      - name: database
+        path: db
+  template:
+    metadata:
+      name: '{{name}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/LGROW101/kubectl-infra-argocd.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: full-assessment-tax
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        automated:
+          selfHeal: true
+          prune: true
