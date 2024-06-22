@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/LGROW101/kubectl-infra-argocd.git
+    repoURL: https://github.com/LGROW101/basic-argocd.git
     targetRevision: main
     path: k8s
   destination:
@@ -42,7 +42,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/LGROW101/kubectl-infra-argocd.git
+        repoURL: https://github.com/LGROW101/basic-argocd.git
         targetRevision: main
         path: '{{path}}'
       destination:
