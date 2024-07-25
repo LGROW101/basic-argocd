@@ -30,11 +30,11 @@ spec:
   - list:
       elements:
       - name: backend
-        path: backend
+        path: k8s/backend # 🚨 เพิ่ม k8s นำหน้า
       - name: frontend
-        path: frontend
+        path: k8s/frontend # 🚨 เพิ่ม k8s นำหน้า
       - name: database
-        path: db
+        path: k8s/db # 🚨 เพิ่ม k8s นำหน้า
   template:
     metadata:
       name: '{{name}}'
