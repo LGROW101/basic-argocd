@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+spec:
+  template:
+    metadata:
+      name: db-migration
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-migration
+        image: postgres:16
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          psql -v ON_ERROR_STOP=1 "$DATABASE_URL" <<-EOSQL
+            BEGIN;
+
+            CREATE TABLE IF NOT EXISTS admin_configs (
+                id SERIAL PRIMARY KEY,
+                personal_deduction DECIMAL(10, 2) NOT NULL DEFAULT 60000.00 CHECK (personal_deduction >= 0 AND personal_deduction <= 100000),
+                k_receipt DECIMAL(10, 2) NOT NULL DEFAULT 50000.00 CHECK (k_receipt >= 0 AND k_receipt <= 100000),
+                created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            INSERT INTO admin_configs (personal_deduction, k_receipt)
+            VALUES (60000.00, 50000.00)
+            ON CONFLICT DO NOTHING;
+
+            CREATE TABLE IF NOT EXISTS tax_calculations (
+                id SERIAL PRIMARY KEY,
+                totalIncome DECIMAL(10, 2) NOT NULL,
+                wht DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
+                personal_allowance DECIMAL(10, 2) NOT NULL DEFAULT '60000.00',
+                donation DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
+                k_receipt DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
+                tax DECIMAL(10, 2) NOT NULL DEFAULT '0.00',
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_tax_calculations_created_at ON tax_calculations (created_at);
+
+            COMMIT;
+          EOSQL
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: database-url

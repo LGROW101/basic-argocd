@@ -24,10 +24,3 @@ spec:
           value: ktaxes
         ports:
         - containerPort: 5432
-        resources:
-          limits:
-            cpu: "1"
-            memory: "1Gi"
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
