@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: assessment-tax-api
+  name: assessment-tax-client
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: assessment-tax-api
+      app: assessment-tax-client
   template:
     metadata:
       labels:
-        app: assessment-tax-api
+        app: assessment-tax-client
     spec:
       containers:
-      - name: assessment-tax-api
-        image: locker01/assessment-tax-api:v1
+      - name: assessment-tax-client
+        image: locker01/assessment-tax-client:v1
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 80
