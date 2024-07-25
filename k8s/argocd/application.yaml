@@ -1,56 +1,56 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: backend
+  name: full-assessment-tax
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/LGROW101/basic-argocd.git
-    targetRevision: HEAD
-    path: k8s/backend
+    targetRevision: main
+    path: k8s
   destination:
     server: https://kubernetes.default.svc
     namespace: full-assessment-tax
   syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
     automated:
-      prune: true
       selfHeal: true
+      prune: true
+
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
-  name: frontend
+  name: assessment-tax-components
   namespace: argocd
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/LGROW101/basic-argocd.git
-    targetRevision: HEAD
-    path: k8s/frontend
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: full-assessment-tax
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: database
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/LGROW101/basic-argocd.git
-    targetRevision: HEAD
-    path: k8s/db
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: full-assessment-tax
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  generators:
+  - list:
+      elements:
+      - name: backend
+        path: k8s/backend # 🚨 เพิ่ม k8s นำหน้า
+      - name: frontend
+        path: k8s/frontend # 🚨 เพิ่ม k8s นำหน้า
+      - name: database
+        path: k8s/db # 🚨 เพิ่ม k8s นำหน้า
+  template:
+    metadata:
+      name: '{{name}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/LGROW101/basic-argocd.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: full-assessment-tax
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        automated:
+          selfHeal: true
+          prune: true
