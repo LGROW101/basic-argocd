@@ -42,3 +42,8 @@ kubectl apply -f k8s/argocd
 kubectl get all
 
 ```
+
+```
+kubectl get applications -n argocd
+
+```
